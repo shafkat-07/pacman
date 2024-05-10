@@ -4,6 +4,7 @@ import Boundary from './Boundary';
 import Player from './Player';
 
 function App() {
+  const pacmanSpeed = 5;
   const canvasRef = useRef();
   const root = document.getElementById('root');
   useEffect(() => {
@@ -90,28 +91,25 @@ function App() {
           for (let i = 0; i < boundaries.length; i++) {
             if (HitTest({ circle: {...player, velocity: {
               x: 0,
-              y: -5
+              y: -pacmanSpeed
             }}, rectangle: boundaries[i] })) {
-              break;
-            }
-            else {
-              player.velocity.y = -5;
-              player.velocity.x = 0;
+              return;
             }
           }
-          
+          player.velocity.y = -pacmanSpeed;
+          player.velocity.x = 0;
           console.log(player.velocity);
           break;
         case 'a':
           for (let i = 0; i < boundaries.length; i++) {
             if (HitTest({ circle: {...player, velocity: {
-              x: -5,
+              x: -pacmanSpeed,
               y: 0
             }}, rectangle: boundaries[i] })) {
               return;
             }
           }
-          player.velocity.x = -5;
+          player.velocity.x = -pacmanSpeed;
           player.velocity.y = 0;
           console.log(player.velocity);
           break;
@@ -119,25 +117,25 @@ function App() {
           for (let i = 0; i < boundaries.length; i++) {
             if (HitTest({ circle: {...player, velocity: {
               x: 0,
-              y: 5
+              y: pacmanSpeed
             }}, rectangle: boundaries[i] })) {
               return;
             }
           }
-          player.velocity.y = 5;
+          player.velocity.y = pacmanSpeed;
           player.velocity.x = 0;
           console.log(player.velocity);
           break;
         case 'd':
           for (let i = 0; i < boundaries.length; i++) {
             if (HitTest({ circle: {...player, velocity: {
-              x: 5,
+              x: pacmanSpeed,
               y: 0
             }}, rectangle: boundaries[i] })) {
               return;
             }
           }
-          player.velocity.x = 5;
+          player.velocity.x = pacmanSpeed;
           player.velocity.y = 0;
           console.log(player.velocity);
           break;  

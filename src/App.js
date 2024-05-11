@@ -6,7 +6,6 @@ import Player from './Player';
 function App() {
   const pacmanSpeed = 5;
   const canvasRef = useRef();
-  const root = document.getElementById('root');
   useEffect(() => {
     const canvas = canvasRef.current;
     const c = canvas.getContext('2d');
@@ -43,10 +42,19 @@ function App() {
       })
     })
 
+    let keys = {
+      w: false,
+      a: false,
+      s: false,
+      d: false
+    }
+
+    let lastKey = '';
+
     const player = new Player({
       position: {
-        x: 40 + Boundary.width / 2,
-        y: 40 + Boundary.height / 2
+        x: Boundary.width + Boundary.width / 2,
+        y: Boundary.height + Boundary.height / 2
       },
       velocity: {
         x: 0,
@@ -59,7 +67,7 @@ function App() {
     // Rectangle: Boundary
     function HitTest({ circle, rectangle}) {
       return (
-        circle.position.y - circle.radius + circle.velocity.y <= rectangle.position.y + rectangle.width &&
+        circle.position.y - circle.radius + circle.velocity.y <= rectangle.position.y + rectangle.height &&
         circle.position.x + circle.radius + circle.velocity.x >= rectangle.position.x &&
         circle.position.y + circle.radius + circle.velocity.y >= rectangle.position.y &&
         circle.position.x - circle.radius + circle.velocity.x <= rectangle.position.x + rectangle.width
@@ -69,75 +77,100 @@ function App() {
     function animate() {
       requestAnimationFrame(animate);
       c.clearRect(0, 0, canvas.width, canvas.height);
+      // Conditions to check if an input causes a hittest.
+      // If hit, do not update the velocity and keep moving in the direction of the last key pressed
+      // Only the condition to check for 'w' is implemented so far
+      if (keys.w && lastKey === 'w') {
+        for (let i = 0; i < boundaries.length; i++) {
+          if (HitTest({ circle: {
+            ...player, velocity: {
+              x: 0,
+              y: -pacmanSpeed
+            }
+          }, rectangle: boundaries[i] })) {
+            player.velocity.y = 0;
+            console.log('set to zero')
+            break;
+          }
+          else {
+            player.velocity.y = -pacmanSpeed;
+          }
+        }
+      }
+      else if (keys.a && lastKey === 'a') {
+        player.velocity.x = -pacmanSpeed;
+      }
+      else if (keys.s && lastKey === 's') {
+        player.velocity.y = pacmanSpeed;
+      }
+      else if (keys.d && lastKey === 'd') {
+        player.velocity.x = pacmanSpeed;
+      }
+
       boundaries.forEach((boundary) => {
         boundary.draw(c);
 
+        // HitTest to see if pacman has reached the end of a wall
         if (HitTest({ circle: player, rectangle: boundary })) {
-          console.log('hit');
           player.velocity.x = 0;
           player.velocity.y = 0;
+          console.log('hit a wall')
         }
       })
-      player.update(c);
+      
+      player.update(c)
+
+      // Adjust speed according to the last key pressed
+      if (keys.w && lastKey === 'w') {
+        player.velocity.y = -pacmanSpeed;
+      }
+      else if (keys.a && lastKey === 'a') {
+        player.velocity.x = -pacmanSpeed;
+      }
+      else if (keys.s && lastKey === 's') {
+        player.velocity.y = pacmanSpeed;
+      }
+      else if (keys.d && lastKey === 'd') {
+        player.velocity.x = pacmanSpeed;
+      }
     }
 
     animate();
     
-
     window.addEventListener('keydown', ( {key} ) => {
-      //console.log(key);
       switch (key) {
         case 'w':
-          for (let i = 0; i < boundaries.length; i++) {
-            if (HitTest({ circle: {...player, velocity: {
-              x: 0,
-              y: -pacmanSpeed
-            }}, rectangle: boundaries[i] })) {
-              return;
-            }
-          }
-          player.velocity.y = -pacmanSpeed;
-          player.velocity.x = 0;
-          console.log(player.velocity);
+          keys.w = true;
+          lastKey = 'w';
           break;
         case 'a':
-          for (let i = 0; i < boundaries.length; i++) {
-            if (HitTest({ circle: {...player, velocity: {
-              x: -pacmanSpeed,
-              y: 0
-            }}, rectangle: boundaries[i] })) {
-              return;
-            }
-          }
-          player.velocity.x = -pacmanSpeed;
-          player.velocity.y = 0;
-          console.log(player.velocity);
+          keys.a = true;
+          lastKey = 'a';
           break;
         case 's':
-          for (let i = 0; i < boundaries.length; i++) {
-            if (HitTest({ circle: {...player, velocity: {
-              x: 0,
-              y: pacmanSpeed
-            }}, rectangle: boundaries[i] })) {
-              return;
-            }
-          }
-          player.velocity.y = pacmanSpeed;
-          player.velocity.x = 0;
-          console.log(player.velocity);
+          keys.s = true;
+          lastKey = 's';
           break;
         case 'd':
-          for (let i = 0; i < boundaries.length; i++) {
-            if (HitTest({ circle: {...player, velocity: {
-              x: pacmanSpeed,
-              y: 0
-            }}, rectangle: boundaries[i] })) {
-              return;
-            }
-          }
-          player.velocity.x = pacmanSpeed;
-          player.velocity.y = 0;
-          console.log(player.velocity);
+          keys.d = true;
+          lastKey = 'd';
+          break;  
+      }
+    })
+
+    window.addEventListener('keyup', ( {key} ) => {
+      switch (key) {
+        case 'w':
+          keys.w = false;
+          break;
+        case 'a':
+          keys.a = false;
+          break;
+        case 's':
+          keys.s = false;
+          break;
+        case 'd':
+          keys.d = false;
           break;  
       }
     })

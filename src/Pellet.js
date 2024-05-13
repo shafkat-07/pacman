@@ -1,4 +1,4 @@
-class Player {
+class Pellet {
     constructor({ position }) {
       this.position = position;
       this.radius = 3;
@@ -13,4 +13,4 @@ class Player {
     }
   }
 
-export default Player;
+export default Pellet;

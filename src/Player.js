@@ -1,3 +1,5 @@
+import Boundary from './Boundary.js';
+
 class Player {
     constructor({ position, velocity }) {
       this.position = position;
@@ -17,6 +19,16 @@ class Player {
         this.draw(c)
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
+    }
+    
+    HitTest({ rectangle }) {
+      const padding = Boundary.width / 2;
+      return (
+        this.position.y - this.radius + this.velocity.y <= rectangle.position.y + rectangle.width &&
+        this.position.x + this.radius + this.velocity.x >= rectangle.position.x &&
+        this.position.y + this.radius + this.velocity.y >= rectangle.position.y &&
+        this.position.x - this.radius + this.velocity.x <= rectangle.position.x + rectangle.width
+      )
     }
   }
 
